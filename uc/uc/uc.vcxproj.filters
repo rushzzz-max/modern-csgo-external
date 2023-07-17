@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Math.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SDK">
+      <UniqueIdentifier>{c74dfffc-bf68-4967-94f9-a1a846057974}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Driver">
+      <UniqueIdentifier>{f06be1af-225d-4618-bfc3-82d97b873774}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{5f70f199-1fcb-4fe7-b68e-1dfb23da564d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDK\Classes">
+      <UniqueIdentifier>{7952aa29-84e6-4101-96ce-495f1008bc5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Loop">
+      <UniqueIdentifier>{8f4d07ae-72f7-457a-bf2b-4745857a0027}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Offsets.hpp">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Driver.hpp">
+      <Filter>Driver</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.hpp">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.hpp">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="C_Entity.hpp">
+      <Filter>SDK\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="INetworkTable.hpp">
+      <Filter>SDK\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Loop.hpp">
+      <Filter>Loop</Filter>
+    </ClInclude>
+    <ClInclude Include="C_BasePlayer.hpp">
+      <Filter>SDK\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="C_ClientState.hpp">
+      <Filter>SDK\Classes</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
