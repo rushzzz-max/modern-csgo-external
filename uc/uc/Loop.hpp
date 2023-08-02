@@ -1,7 +1,12 @@
 cached_game c_game;
 
+#include <mutex>
+#include <shared_mutex>
+
 // Ok this is meme. But I want to make something fast so its fine by now xD
 vec3_t screen_size( 1920, 1080, 0 );
+
+std::shared_mutex mtx;
 
 auto cache_loop( ) -> void {
 	while ( true ) {
@@ -29,13 +34,18 @@ auto cache_loop( ) -> void {
 			//ent.client_state = client_state;
 			c_game.temp_players.push_back( ent );
 		}
-		c_game.players = c_game.temp_players;
+		
+		{
+			std::unique_lock lock(mtx);
+			c_game.players = c_game.temp_players;
+		}
 		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 	}
 }
 
 auto esp_loop( ) -> void {
 	while ( true ) {
+		std::shared_lock lock(mtx);
 		for ( auto& entity : c_game.players ) {
 		
 			//If our health is invalid we continue
@@ -87,34 +97,36 @@ auto esp_loop( ) -> void {
 
 auto aimbot_thread( ) -> void {
 	while ( true ) {
-		auto client_state = memory->read < c_client_state*>( globals::client_dll + hazedumper::signatures::dwClientState );
-		auto view_angle = client_state->get_view_angle( );
+		{
+			std::shared_lock lock(mtx);
+			auto client_state = memory->read < c_client_state*>( globals::client_dll + hazedumper::signatures::dwClientState );
+			auto view_angle = client_state->get_view_angle( );
 
-		float BestFov = 10.f;
-		vec3_t final_aim_angle{ 0,0,0 };
-		vec3_t smoothedAngle;
+			float BestFov = 10.f;
+			vec3_t final_aim_angle{ 0,0,0 };
+			vec3_t smoothedAngle;
 
-		for ( auto& players : c_game.players ) {
-			auto local_origin = players.local_player->get_origin( );
-			auto vec_view_offset = players.local_player->get_vec_view_offset( );
-			auto head_position = local_origin + vec_view_offset;
+			for ( auto& players : c_game.players ) {
+				auto local_origin = players.local_player->get_origin( );
+				auto vec_view_offset = players.local_player->get_vec_view_offset( );
+				auto head_position = local_origin + vec_view_offset;
 			
-			if ( !players.health )
-				continue;
+				if ( !players.health )
+					continue;
+				
+				if ( players.entity->get_entity_team( ) == players.local_player->local_team( ) )
+					continue;
 
-			if ( players.entity->get_entity_team( ) == players.local_player->local_team( ) )
-				continue;
+				vec3_t entity_head = players.entity->get_bone_pos( players.entity->get_bone_matrix( ), 8 );
+				vec3_t aim_angle = calc_angle( head_position, entity_head );
+				vec3_t relative_angle = aim_angle - view_angle;
+				float Fov = std::hypot( relative_angle.x, relative_angle.y );
 
-			vec3_t entity_head = players.entity->get_bone_pos( players.entity->get_bone_matrix( ), 8 );
-			vec3_t aim_angle = calc_angle( head_position, entity_head );
-
-			vec3_t relative_angle = aim_angle - view_angle;
-
-			float Fov = std::hypot( relative_angle.x, relative_angle.y );
-
-			if ( Fov < BestFov ) {
-				BestFov = Fov;
-				final_aim_angle = aim_angle;
+				if ( Fov < BestFov ) {
+					BestFov = Fov;
+					final_aim_angle = aim_angle;
+				}
+			
 			}
 		}
 		/*if ( !final_aim_angle.is_zero( ) && GetAsyncKeyState( 0x06 ) ) {
